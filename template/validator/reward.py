@@ -1,7 +1,6 @@
 # The MIT License (MIT)
 # Copyright © 2023 Yuma Rao
-# TODO(developer): Set your name
-# Copyright © 2023 <your name>
+# Copyright © 2024 HIP Labs
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the “Software”), to deal in the Software without restriction, including without limitation
@@ -29,7 +28,9 @@ def reward(query: int, response: int) -> float:
     Returns:
     - float: The reward value for the miner.
     """
-    bt.logging.info(f"In rewards, query val: {query}, response val: {response}, rewards val: {1.0 if response == query * 2 else 0}")
+    bt.logging.info(
+        f"In rewards, query val: {query}, response val: {response}, rewards val: {1.0 if response == query * 2 else 0}"
+    )
     return 1.0 if response == query * 2 else 0
 
 
@@ -49,7 +50,5 @@ def get_rewards(
     - np.ndarray: An array of rewards for the given query and responses.
     """
     # Get all the reward results by iteratively calling your reward() function.
-    
-    return np.array(
-        [reward(query, response) for response in responses]
-    )
+
+    return np.array([reward(query, response) for response in responses])
