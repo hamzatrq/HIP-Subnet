@@ -23,10 +23,10 @@ import bittensor as bt
 from abc import ABC, abstractmethod
 
 # Sync calls set weights and also resyncs the metagraph.
-from template.utils.config import check_config, add_args, config
-from template.utils.misc import ttl_get_block
-from template import __spec_version__ as spec_version
-from template.mock import MockSubtensor, MockMetagraph
+from hip.utils.config import check_config, add_args, config
+from hip.utils.misc import ttl_get_block
+from hip import __spec_version__ as spec_version
+from hip.mock import MockSubtensor, MockMetagraph
 
 
 class BaseNeuron(ABC):
@@ -81,12 +81,8 @@ class BaseNeuron(ABC):
         # The wallet holds the cryptographic key pairs for the miner.
         if self.config.mock:
             self.wallet = bt.MockWallet(config=self.config)
-            self.subtensor = MockSubtensor(
-                self.config.netuid, wallet=self.wallet
-            )
-            self.metagraph = MockMetagraph(
-                self.config.netuid, subtensor=self.subtensor
-            )
+            self.subtensor = MockSubtensor(self.config.netuid, wallet=self.wallet)
+            self.metagraph = MockMetagraph(self.config.netuid, subtensor=self.subtensor)
         else:
             self.wallet = bt.wallet(config=self.config)
             self.subtensor = bt.subtensor(config=self.config)
@@ -100,21 +96,17 @@ class BaseNeuron(ABC):
         self.check_registered()
 
         # Each miner gets a unique identity (UID) in the network for differentiation.
-        self.uid = self.metagraph.hotkeys.index(
-            self.wallet.hotkey.ss58_address
-        )
+        self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
         bt.logging.info(
             f"Running neuron on subnet: {self.config.netuid} with uid {self.uid} using network: {self.subtensor.chain_endpoint}"
         )
         self.step = 0
 
     @abstractmethod
-    async def forward(self, synapse: bt.Synapse) -> bt.Synapse:
-        ...
+    async def forward(self, synapse: bt.Synapse) -> bt.Synapse: ...
 
     @abstractmethod
-    def run(self):
-        ...
+    def run(self): ...
 
     def sync(self):
         """
@@ -163,10 +155,8 @@ class BaseNeuron(ABC):
 
         # Define appropriate logic for when set weights.
         return (
-            (self.block - self.metagraph.last_update[self.uid])
-            > self.config.neuron.epoch_length
-            and self.neuron_type != "MinerNeuron"
-        )  # don't set weights if you're a miner
+            self.block - self.metagraph.last_update[self.uid]
+        ) > self.config.neuron.epoch_length and self.neuron_type != "MinerNeuron"  # don't set weights if you're a miner
 
     def save_state(self):
         bt.logging.warning(
